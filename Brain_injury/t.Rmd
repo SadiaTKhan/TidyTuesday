@@ -1,0 +1,47 @@
+---
+title: "Brain Injury"
+author: "Sadia T Khan"
+date: "March 31, 2020"
+output: html_document
+---
+
+
+
+```{r, warning=FALSE, message=FALSE}
+library(tidyverse)
+library(extrafont)
+library(wesanderson)
+library(gganimate)
+library(gifski)
+library(png)
+
+#data
+tbi_age <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-03-24/tbi_age.csv')
+tbi_year <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-03-24/tbi_year.csv')
+tbi_military <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-03-24/tbi_military.csv')
+
+#color palette
+pal <- wes_palette("GrandBudapest1", 3, type = "discrete")
+
+loadfonts(device = "win")
+
+gif <- tbi_year %>% 
+  filter(injury_mechanism != "Total") %>% 
+  ggplot(aes(x = injury_mechanism,y = number_est, fill = type )) +
+  geom_bar(position = "dodge", stat = "identity") + 
+  scale_fill_manual(values =pal)+
+  coord_flip() +
+  transition_states(year, transition_length = 10, state_length = 1) +
+  labs(title = "Traumatic Brain Injury (TBI) Incidence in {closest_state}",x = "Cause of Injury", y = "Count",caption = "Data Source:US CDC")+
+  theme_bw()+
+  theme(text = element_text(size=20, family = "Times New Roman")) +  
+  scale_y_log10(labels = scales::comma) 
+
+
+fig <- animate(gif,  width = 1200, height = 750, end_pause = 50, renderer = gifski_renderer("braininjury.gif"))
+
+
+print(fig)
+```
+
+
